@@ -17,7 +17,7 @@ requirements = (
     'scipy ==1.9.3',
     'shapely',
     'alphashape <=1.3.1',
-    'py3dtiles @ git+https://github.com/keyspry/py3dtiles@Tiler',
+    'py3dtiles @ git+https://github.com/kespry/py3dtiles@Tiler',
     'earclip @ git+https://github.com/lionfish0/earclip',
     'Pillow',
     'ifcopenshell'
