@@ -58,24 +58,26 @@ class FromGeometryTreeToTileset():
         :param user_args: the Namespace containing the arguments of the command line.
         :param obj_writer: the writer used to create the OBJ model.
         """
+        if hasattr(user_args, 'height_mult') and user_args.height_mult:
+            for feature_list in node.get_features():
+                feature_list.height_mult_features(user_args.height_mult)
+
         if hasattr(user_args, 'scale') and user_args.scale:
             for feature_list in node.get_features():
                 feature_list.scale_features(user_args.scale, tree_centroid)
 
-        centroid = node.feature_list.get_centroid()
-        offset = np.array([0, 0, 0]) if user_args.offset[0] == 'centroid' else centroid + np.array(user_args.offset)
+        offset = np.array([0, 0, 0]) if user_args.offset[0] == 'centroid' else np.array(user_args.offset)
 
         if not user_args.crs_in == user_args.crs_out:
             transformer = Transformer.from_crs(user_args.crs_in, user_args.crs_out)
-            tree_centroid = np.array(transformer.transform(tree_centroid[0], tree_centroid[1], tree_centroid[2]))
-            offset = np.array(transformer.transform(offset[0], offset[1], offset[2]))
+            tree_centroid = np.array(transformer.transform((tree_centroid+offset)[0], (tree_centroid+offset)[1], (tree_centroid+offset)[2]))
             for feature_list in node.get_features():
-                feature_list.change_crs(transformer)
+                feature_list.change_crs(transformer, offset)
 
         distance = node.feature_list.get_centroid() - tree_centroid
 
         for feature_list in node.get_features():
-            feature_list.translate_features(-feature_list.get_centroid())
+            feature_list.translate_features(-offset)
 
         if user_args.obj is not None:
             for leaf in node.get_leaves():

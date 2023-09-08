@@ -296,7 +296,7 @@ class FeatureList(object):
             feature.set_triangles(new_geom)
             feature.set_box()
 
-    def change_crs(self, transformer):
+    def change_crs(self, transformer, offset):
         """
         Project the features into another CRS
         :param transformer: the transformer used to change the crs
@@ -306,9 +306,25 @@ class FeatureList(object):
             for triangle in feature.get_geom_as_triangles():
                 new_position = []
                 for point in triangle:
-                    new_point = transformer.transform(point[0], point[1], point[2])
+                    new_point = transformer.transform((point+offset)[0], (point+offset)[1], (point+offset)[2])
                     new_position.append(np.array(new_point))
                 new_geom.append(new_position)
+            feature.set_triangles(new_geom)
+            feature.set_box()
+
+    def height_mult_features(self, height_mult):
+        """
+        Converts height to different units by specifing the multiplier
+        :param height_mult: the factor to scale height values
+        """
+        for feature in self.get_features():
+            new_geom = []
+            for triangle in feature.get_geom_as_triangles():
+                scaled_triangle = []
+                for vertex in triangle:
+                    scaled_vertex = np.array([vertex[0], vertex[1], vertex[2] * height_mult])
+                    scaled_triangle.append(scaled_vertex)
+                new_geom.append(scaled_triangle)
             feature.set_triangles(new_geom)
             feature.set_box()
 
